@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 // my routes
-//const userRoutes = require('./routes/Users/user');
+const userRoutes = require('./routes/user');
 
 //DB Connection
 mongoose
@@ -32,15 +32,15 @@ app.use(express.urlencoded({ extended: false }));
 mongoose.Promise = global.Promise;
 
 //My Routes
-//app.use("/user",userRoutes);
+app.use("/user",userRoutes);
 
 app.use("/",(req,res)=>{                 //default route
-  res.send("Welcome to User Authentication System");
+  res.send("Welcome to User Authentication System !!");
 })
 
 const port = process.env.PORT || 8000;
 
 //Starting a server
 app.listen(port, () => {
-  console.log(`App is running at port ${port}`);
+  console.log(`App is running at port ${port} !!`);
 });
