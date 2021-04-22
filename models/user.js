@@ -11,23 +11,31 @@ var UserSchema = new Schema({
         type: String,
         default: ''
       },
-    username: {
+    email: {
         type: String,
         unique: true,
         required: true
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     },
     password: {
         type: String,
         max: 20,
         required: true
       },
-    email: {
+    token: {               //this will store login token
         type: String,
+        default: ''
       },
-    admin: {                  //whether the user is admin or not
-        type: Boolean,
-        default: false
-    }
+    expireTime: {         //token expiration time //gets set when a token is created
+        type: Number,
+        default: ''
+      }
+},{
+  timestamps: { currentTime: ()=> Date.now() }
 });
+
 
 module.exports = mongoose.model('User', UserSchema);
