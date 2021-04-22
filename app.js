@@ -7,6 +7,7 @@ const cors = require("cors");
 
 // my routes
 const userRoutes = require('./routes/user');
+const protectedRoute= require('./routes/protected');
 
 //DB Connection
 mongoose
@@ -33,6 +34,7 @@ mongoose.Promise = global.Promise;
 
 //My Routes
 app.use("/user",userRoutes);
+app.use("/login",protectedRoute);
 
 app.use("/",(req,res)=>{                 //default route
   res.send("Welcome to User Authentication System !!");

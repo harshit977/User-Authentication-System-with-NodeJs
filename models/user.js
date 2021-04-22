@@ -25,16 +25,13 @@ var UserSchema = new Schema({
         max: 20,
         required: true
       },
-    token: {               //this will store login token
-        type: String,
-        default: ''
-      },
-    expireTime: {         //token expiration time //gets set when a token is created
-        type: Number,
-        default: ''
-      }
+      tokens:[{
+        token:{
+          type:String
+        }
+      }]
 },{
-  timestamps: { currentTime: ()=> Date.now() }
+  timestamps: true
 });
 
 
