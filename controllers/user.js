@@ -174,7 +174,7 @@ exports.logoutUser = async (req,res) => {
                 var count=0;
                 await req.user.tokens.map(async (token)=> {
      
-                     const decipher= await crypto.createDecipher(algorithm,key);
+                     const decipher= await crypto.createDecipher(algorithm,toString(process.env.secretKey));
                      var data=await decipher.update(token.token,'hex','utf8');
                      data+=decipher.final('utf8');
                      var exp=data.split('.')[1];
