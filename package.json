@@ -16,7 +16,8 @@
     "nodemon": "^2.0.6"
   },
   "scripts": {
-    "test": "nodemon app.js"
+    "test": "nodemon app.js",
+    "start": "node app.js"
   },
   "author": "Harshit Sharma",
   "license": "MIT"
