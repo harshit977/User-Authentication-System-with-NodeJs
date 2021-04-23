@@ -51,3 +51,11 @@ exports.verifyUser = async (req,res,next) => {
    }
      
 }
+
+exports.verifyAdmin =  (req,res,next)=> {
+    if(req.user.admin===true) {
+        return next();
+    }
+    else
+    return res.status(401).json("Admin access required !!");
+}

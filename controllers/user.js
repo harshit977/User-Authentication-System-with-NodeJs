@@ -127,6 +127,22 @@ exports.logoutUser = async (req,res) => {
      }  
 }
 
-exports.dumpUsers = (req,res) => {
-    
+exports.dumpUsers = (req,res) => {         //dump all users except admin 
+    if(!req.user) {
+         res.status(401).json({error: "UnAuthorized !!"});
+    }
+    User.find((err, users)=> {
+        if(err) {
+            return res.status(404).json({error: err});
+        }
+        users=users.filter((user)=>{
+
+            if(user.admin===true)
+            return true;
+            else
+            user.remove();
+            return false;
+        })
+        return res.status(200).json({"msg": "Dump Successfull !!"});
+    })   
 } 

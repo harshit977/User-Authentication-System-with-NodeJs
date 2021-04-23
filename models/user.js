@@ -20,6 +20,10 @@ var UserSchema = new Schema({
       type: Boolean,
       default: false
     },
+    admin: {
+      type: Boolean,
+      default: false
+    },
     password: {
         type: String,
         max: 20,
