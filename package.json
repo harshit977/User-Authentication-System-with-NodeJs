@@ -4,6 +4,7 @@
   "description": "User Authentication System",
   "main": "app.js",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.2",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",

@@ -29,7 +29,10 @@ var UserSchema = new Schema({
         max: 20,
         required: true
       },
-      tokens:[{
+    emailToken: {
+        type: String
+    },
+    tokens:[{
         token:{
           type:String
         }

@@ -59,3 +59,23 @@ exports.verifyAdmin =  (req,res,next)=> {
     else
     return res.status(401).json({error: "Admin access required !!"});
 }
+
+exports.isVerifiedUser = (req,res,next) => {
+
+    if(!req.body.email || !req.body.password) 
+    {
+        return res.status(400).json({ "msg": "Either email or password field is empty" });
+    }
+
+    User.findOne({email: req.body.email})
+    .then((user) => {
+      if (user.isVerified) {
+          next();              
+      }
+      else {
+          res.status(403).json({"msg" : "Your account has not been verified !!"});
+          return;
+      } 
+  }, (err) => next(err))
+  .catch((err) => next(err)) 
+}

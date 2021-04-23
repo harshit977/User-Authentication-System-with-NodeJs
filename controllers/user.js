@@ -5,6 +5,9 @@ var crypto=require('crypto');
 const user = require("../models/user");
 const algorithm = 'aes256';
 const key=process.env.secretKey;
+const sgMail = require("@sendgrid/mail");
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 
@@ -27,22 +30,67 @@ exports.registerUser = (req,res) => {
             var newUser= new User({
                 email: req.body.email,
                 password: encryptedPassword,
-                isVerified : false
+                isVerified : false,
+                emailToken: crypto.randomBytes(64).toString("hex")
             });
             if (req.body.firstname)
                 newUser.firstname = req.body.firstname;
             if (req.body.lastname)
                 newUser.lastname = req.body.lastname;
 
-            await newUser.save();
-            res.status(201).json({"msg": "User Registration Successfull !!"});
-            return;
+            const msg = {
+                from: "harshitsharmabtp@gmail.com",
+                to: newUser.email,
+                subject: "Secure Auth Registration - Verify your Email",
+                text: `Hi there, Thanks for registering !!,
+                    Please copy and paste the url given below to verify your account: 
+                    http://${req.headers.host}/user/verify-email?token=${newUser.emailToken}`,
+                html: `<h1>Hi there,</h1>
+                      <p>Thanks for registering !!</p>
+                      <p>Please click on the link given below to verify your account:</p>
+                      <a href="http://${req.headers.host}/user/verify-email?token=${newUser.emailToken}">Verify your account</a>`,
+              };
+            try 
+            {
+                await newUser.save();
+                await sgMail.send(msg); //calling sendgrid to send email to the user's mail  
+                res.status(201).json({"msg": "User Registration Successfull. Please check your email for verification link. !!"});
+                return;
+            }
+            catch(err) {
+                res.status(500).json({error: "Something went Wrong !!",desc: err});
+                return;
+            }
+            
     })
     .catch((err)=> {
         res.status(500).json({error: err});
     })
 
 }
+
+//email verification api
+exports.verifyEmail = async (req, res) => {
+    try {
+      const user = await User.findOne({ emailToken: req.query.token });
+      if (!user) {
+        res.status(401).json({error: "Token Invalid !!, Please try registering again !!"});
+        return;
+      }
+      user.emailToken = null;     //detroying the token so that no one else can use this link again
+      user.isVerified = true;
+      await user.save();
+      res.status(200).json({ status: "success", "msg" : "Email Verification Successfull !!" });
+    } catch (error) {
+      if (error) {
+        res.status(500).json({ error: "Something went Wrong !!", desc: error });
+        return;
+      }
+    }
+  };
+
+
+
 
 exports.loginUser = async (req,res) => {
 
