@@ -23,7 +23,7 @@ exports.verifyUser = async (req,res,next) => {
      }
 
      try {
-            const decipher= await crypto.createDecipher(algorithm,key);
+            const decipher= await crypto.createDecipher(algorithm,process.env.secretkey);
             var token=await decipher.update(encrypted,'hex','utf8');
             token+=decipher.final('utf8');
             
