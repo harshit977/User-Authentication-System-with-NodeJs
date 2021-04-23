@@ -138,8 +138,8 @@ exports.loginUser = async (req,res) => {
                     var exp =  parseInt(Date.now())+parseInt(process.env.expire);       
                     var token=user._id+'.'+exp;
                     
-                    const cipher=crypto.createCipher(algorithm,key);
-                    var encrypted=cipher.update(token,'utf8','hex')+cipher.final('hex');
+                    const cipher=await crypto.createCipher(algorithm,key);
+                    var encrypted=await cipher.update(token,'utf8','hex')+cipher.final('hex');
                                      
                      user.tokens.push({token: encrypted});
                      await user.save();
