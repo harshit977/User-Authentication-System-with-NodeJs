@@ -11,12 +11,12 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 
-exports.registerUser = (req,res) => {
+exports.registerUser = async (req,res) => {
 
     if(!req.body.email || !req.body.password) {
         return res.status(400).json({ "msg": "Either email or password field is empty" });
     }
-     User.findOne({email: req.body.email})
+    await User.findOne({email: req.body.email})
     .then(async (user) => {
         if(user) 
         {   
