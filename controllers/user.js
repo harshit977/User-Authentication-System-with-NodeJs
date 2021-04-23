@@ -59,7 +59,7 @@ exports.loginUser = async (req,res) => {
             await bcrypt.compare(req.body.password,user.password,async (err,same) => {
                  if(!err && same) {
 
-                    var exp =  Date.now()+20000;       //lifetime
+                    var exp =  parseInt(Date.now())+parseInt(process.env.expire);       //lifetime 1 minute
                     var token=user._id+'.'+exp;
                     
                     const cipher=crypto.createCipher(algorithm,key);
@@ -92,38 +92,41 @@ exports.loginUser = async (req,res) => {
 }
 
 exports.logoutUser = async (req,res) => {
-     if(req.id) 
+     if(req.user) 
      {
-         User.findOne({"_id":req.id})
-         .then(async (user)=>{
-        try {
-            await user.tokens.filter(async (token)=> {
-
-                const decipher= await crypto.createDecipher(algorithm,key);
-                var data=await decipher.update(token.token,'hex','utf8');
-                data+=decipher.final('utf8');
-                var exp=data.split('.')[1];
-    
-                console.log("date "+exp);
-                console.log(req.token);
-                console.log(token.token);
-    
-                 if(token.token !=req.token && Date.now()<=exp) {
-                    return true;
-                 } 
-                 return false;   
-             })
-             await user.save();
+         console.log(req.user);
+            try {
+                var count=0;
+                await req.user.tokens.map(async (token)=> {
+     
+                     const decipher= await crypto.createDecipher(algorithm,key);
+                     var data=await decipher.update(token.token,'hex','utf8');
+                     data+=decipher.final('utf8');
+                     var exp=data.split('.')[1];
+         
+                     if((token.token != req.token) && (Date.now()<=exp)) {
+                         //do nothing
+                      }
+                      else {
+                          console.log(count);
+                          req.user.tokens.splice(count, 1);
+                          console.log(req.user.tokens);
+                          count--;
+                      } 
+                      count++;   
+                  })
+                  await req.user.save();
+                  return res.status(200).json({data: req.user});
+             }
+             catch(err) {
+                 return res.status(500).json({error: "Something went wrong !!"});
+              } 
         }
-        catch(err) {
-            res.status(500).json({error: "Something went wrong !!"});
-         }   
-         })
-         .catch((err)=>{
-            res.status(401).json({"msg": "UnAuthorized !!",error: err})
-         })     
-     }
      else {
-        res.status(400).json({"msg": "You are not logged In !!"});
+        return res.status(400).json({"msg": "You are not logged In !!"});
      }  
 }
+
+exports.dumpUsers = (req,res) => {
+    
+} 

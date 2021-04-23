@@ -26,14 +26,11 @@ exports.verifyUser = async (req,res,next) => {
             const decipher= await crypto.createDecipher(algorithm,key);
             var token=await decipher.update(encrypted,'hex','utf8');
             token+=decipher.final('utf8');
-    
-            console.log(token);
             
             var id=token.split('.')[0];
             var exp=token.split('.')[1];
     
             if(Date.now()>exp) {
-                console.log("hello");
                 return res.status(401).json({error: "Token Expired !!"});
             }
             await User.findOne({'_id': id , 'tokens.token' : encrypted})
@@ -41,8 +38,7 @@ exports.verifyUser = async (req,res,next) => {
             if(!user) {
                 return res.status(401).json({error: "Unauthorized !!"});
             }
-                console.log(user);
-                req.id=user._id;
+                req.user=user;
                 req.token=encrypted;
                 return next();
             }) 
