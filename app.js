@@ -17,7 +17,7 @@ mongoose
     useCreateIndex: true,
   })
   .then(() => {
-    console.log("DB IS CONNECTED");
+    console.log("DB CONNECTED");
   })
   .catch((err) => {
     console.log(err);
@@ -34,7 +34,7 @@ mongoose.Promise = global.Promise;
 
 //My Routes
 app.use("/user",userRoutes);
-app.use("/login",protectedRoute);
+app.use("/home",protectedRoute);
 
 app.use("/",(req,res)=>{                 //default route
   res.send("Welcome to User Authentication System !!");

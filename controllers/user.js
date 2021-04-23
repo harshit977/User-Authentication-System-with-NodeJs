@@ -11,11 +11,10 @@ const key=process.env.secretKey;
 exports.registerUser = (req,res) => {
 
     if(!req.body.email || !req.body.password) {
-        return res.status(400).json({ msg: "Either email or password field is empty" });
+        return res.status(400).json({ "msg": "Either email or password field is empty" });
     }
      User.findOne({email: req.body.email})
     .then(async (user) => {
-        console.log(user);
         if(user) 
         {    
             res.status(403).json({"msg": "Email already registered with some other account !!"});
@@ -36,7 +35,7 @@ exports.registerUser = (req,res) => {
                 newUser.lastname = req.body.lastname;
 
             await newUser.save();
-            res.status(201).json({"msg": "User Registration Successfull !!",data : newUser});
+            res.status(201).json({"msg": "User Registration Successfull !!"});
             return;
     })
     .catch((err)=> {
@@ -49,7 +48,7 @@ exports.loginUser = async (req,res) => {
 
     if(!req.body.email || !req.body.password) 
     {
-        return res.status(400).json({ msg: "Either email or password field is empty" });
+        return res.status(400).json({ "msg": "Either email or password field is empty" });
     }
 
     await User.findOne({email: req.body.email})
@@ -59,7 +58,7 @@ exports.loginUser = async (req,res) => {
             await bcrypt.compare(req.body.password,user.password,async (err,same) => {
                  if(!err && same) {
 
-                    var exp =  parseInt(Date.now())+parseInt(process.env.expire);       //lifetime 1 minute
+                    var exp =  parseInt(Date.now())+parseInt(process.env.expire);       
                     var token=user._id+'.'+exp;
                     
                     const cipher=crypto.createCipher(algorithm,key);
@@ -68,11 +67,11 @@ exports.loginUser = async (req,res) => {
                      user.tokens.push({token: encrypted});
                      await user.save();
                
-                     res.status(200).json({"msg" : "logged in",token: encrypted});
+                     res.status(200).json({"msg" : "Logged In !!",token: encrypted});
                      return;
                  }
                  if(!err && !same) {
-                    res.status(401).json({"msg": "Unauthorized !! Incorrect Password"});
+                    res.status(401).json({error: "Unauthorized !! Incorrect Password"});
                     return;
                  }
                  if(err) {
@@ -94,7 +93,6 @@ exports.loginUser = async (req,res) => {
 exports.logoutUser = async (req,res) => {
      if(req.user) 
      {
-         console.log(req.user);
             try {
                 var count=0;
                 await req.user.tokens.map(async (token)=> {
@@ -108,22 +106,20 @@ exports.logoutUser = async (req,res) => {
                          //do nothing
                       }
                       else {
-                          console.log(count);
                           req.user.tokens.splice(count, 1);
-                          console.log(req.user.tokens);
                           count--;
                       } 
                       count++;   
                   })
                   await req.user.save();
-                  return res.status(200).json({data: req.user});
+                  return res.status(200).json({"msg": "Logged Out !!"});
              }
              catch(err) {
-                 return res.status(500).json({error: "Something went wrong !!"});
+                 return res.status(401).json({error: "Invalid Token !!"});
               } 
         }
      else {
-        return res.status(400).json({"msg": "You are not logged In !!"});
+        return res.status(400).json({error : "You are not logged In !!"});
      }  
 }
 

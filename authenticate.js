@@ -47,7 +47,7 @@ exports.verifyUser = async (req,res,next) => {
             })
      }
    catch(err) {
-       return res.status(500).json({error : "Something went wrong !!"});
+       return res.status(401).json({error : "Invalid Token !!"});
    }
      
 }
@@ -57,5 +57,5 @@ exports.verifyAdmin =  (req,res,next)=> {
         return next();
     }
     else
-    return res.status(401).json("Admin access required !!");
+    return res.status(401).json({error: "Admin access required !!"});
 }
