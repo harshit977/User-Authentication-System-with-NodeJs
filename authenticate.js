@@ -69,19 +69,13 @@ exports.isVerifiedUser = (req,res,next) => {
 
     User.findOne({email: req.body.email})
     .then((user) => {
-        if(!user) {
-            res.status(404).json({"msg": "Email Not Found !!"});
-            return;
-        }
       if (user.isVerified) {
-          return next();              
+          next();              
       }
       else {
           res.status(403).json({"msg" : "Your account has not been verified !!"});
           return;
       } 
-  })
-  .catch((err) => {
-    return  res.status(500).json(err);
-  }); 
+  }, (err) => next(err))
+  .catch((err) => next(err)) 
 }
