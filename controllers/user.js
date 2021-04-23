@@ -126,11 +126,6 @@ exports.loginUser = async (req,res) => {
     try {
         const user= await User.findOne({email: req.body.email});
     
-        if(! user) 
-        {
-            res.status(404).json({"msg": "Email Not Found !!"});
-            return;
-        }
         await bcrypt.compare(req.body.password,user.password,async (err,same) => {
             if(!err && same) {
 
