@@ -19,7 +19,33 @@ exports.registerUser = (req,res) => {
      User.findOne({email: req.body.email})
     .then(async (user) => {
         if(user) 
-        {    
+        {   
+            if(user.isVerified===false) {
+
+                const msg = {
+                    from: "harshitsharmabtp@gmail.com",
+                    to: user.email,
+                    subject: "Secure Auth Registration - Verify your Email",
+                    text: `Hi there, Thanks for registering !!,
+                        Please copy and paste the url given below to verify your account: 
+                        http://${req.headers.host}/user/verify-email?token=${user.emailToken}`,
+                    html: `<h1>Hi there,</h1>
+                          <p>Thanks for registering !!</p>
+                          <p>Please click on the link given below to verify your account:</p>
+                          <a href="http://${req.headers.host}/user/verify-email?token=${user.emailToken}">Verify your account</a>`,
+                  };
+
+                  try 
+                {
+                    await sgMail.send(msg); //calling sendgrid to send email to the user's mail 
+                    res.status(201).json({"msg": "Verification link sent again. Please check your email for verification link. !!"});
+                    return;
+                } 
+                catch(err) {
+                    res.status(500).json({error: "Something went Wrong. Try again !!",desc: err});
+                    return;
+                }
+            }
             res.status(403).json({"msg": "Email already registered with some other account !!"});
             return;
         }
@@ -52,8 +78,8 @@ exports.registerUser = (req,res) => {
               };
             try 
             {
+                await sgMail.send(msg); //calling sendgrid to send email to the user's mail 
                 await newUser.save();
-                await sgMail.send(msg); //calling sendgrid to send email to the user's mail  
                 res.status(201).json({"msg": "User Registration Successfull. Please check your email for verification link. !!"});
                 return;
             }
