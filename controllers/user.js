@@ -123,48 +123,43 @@ exports.verifyEmail = async (req, res) => {
 
 exports.loginUser = async (req,res) => {
 
-    if(!req.body.email || !req.body.password) 
-    {
-        return res.status(400).json({ "msg": "Either email or password field is empty" });
-    }
-
-    await User.findOne({email: req.body.email})
-    .then(async (user)=> {
-        if(user) 
+    try {
+        const user= await User.findOne({email: req.body.email});
+    
+        if(! user) 
         {
-            await bcrypt.compare(req.body.password,user.password,async (err,same) => {
-                 if(!err && same) {
-
-                    var exp =  parseInt(Date.now())+parseInt(process.env.expire);       
-                    var token=user._id+'.'+exp;
-                    
-                    const cipher=await crypto.createCipher(algorithm,key);
-                    var encrypted=await cipher.update(token,'utf8','hex')+cipher.final('hex');
-                                     
-                     user.tokens.push({token: encrypted});
-                     await user.save();
-               
-                     res.status(200).json({"msg" : "Logged In !!",token: encrypted});
-                     return;
-                 }
-                 if(!err && !same) {
-                    res.status(401).json({error: "Unauthorized !! Incorrect Password"});
-                    return;
-                 }
-                 if(err) {
-                    res.status(500).json({error: err});
-                    return;
-                 }
-            })
-        }
-        else {
             res.status(404).json({"msg": "Email Not Found !!"});
             return;
         }
-    })
-    .catch((err) => {
-        res.status(500).json({error: err});
-    })
+        await bcrypt.compare(req.body.password,user.password,async (err,same) => {
+            if(!err && same) {
+
+                var exp =  parseInt(Date.now())+parseInt(process.env.expire);       
+                var token=user._id+'.'+exp;
+                    
+                const cipher= await crypto.createCipher(algorithm,key);
+                var encrypted= await cipher.update(token,'utf8','hex')+cipher.final('hex');
+                                     
+                user.tokens.push({token: encrypted});
+                await user.save();
+               
+                res.status(200).json({"msg" : "Logged In !!",token: encrypted});
+                return;
+            }
+            if(!err && !same) {
+                 res.status(401).json({error: "Unauthorized !! Incorrect Password"});
+                return;
+            }
+            if(err) {
+                res.status(500).json({error: err});
+                return;
+            }
+            });
+    }
+  catch(err) {
+    res.status(500).json({error: err});
+    return;
+  }      
 }
 
 exports.logoutUser = async (req,res) => {
