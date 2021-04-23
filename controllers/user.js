@@ -97,6 +97,9 @@ exports.registerUser = (req,res) => {
 
 //email verification api
 exports.verifyEmail = async (req, res) => {
+    if(!req.query.token) {
+        return res.status(401).json({error: "Query Token Missing !!"});
+    }
     try {
       const user = await User.findOne({ emailToken: req.query.token });
       if (!user) {
